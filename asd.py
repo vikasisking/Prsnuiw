@@ -13,23 +13,10 @@ import os
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-import pycountry
-
-EXTRA_CODES = {"Kosovo": "XK"}  # special cases
-
-def country_to_flag(country_name: str) -> str:
-    code = EXTRA_CODES.get(country_name)
-    if not code:
-        try:
-            country = pycountry.countries.lookup(country_name)
-            code = country.alpha_2
-        except LookupError:
-            return ""
-    return "".join(chr(127397 + ord(c)) for c in code.upper())
 
 # Configuration
-LOGIN_URL = "http://109.236.84.81/ints/login"
-XHR_URL = "http://109.236.84.81/ints/agent/res/data_smscdr.php?fdate1=2025-08-30%2000:00:00&fdate2=2026-08-30%2023:59:59&frange=&fclient=&fnum=&fcli=&fgdate=&fgmonth=&fgrange=&fgclient=&fgnumber=&fgcli=&fg=0&sEcho=1&iColumns=9&sColumns=%2C%2C%2C%2C%2C%2C%2C%2C&iDisplayStart=0&iDisplayLength=25&mDataProp_0=0&sSearch_0=&bRegex_0=false&bSearchable_0=true&bSortable_0=true&mDataProp_1=1&sSearch_1=&bRegex_1=false&bSearchable_1=true&bSortable_1=true&mDataProp_2=2&sSearch_2=&bRegex_2=false&bSearchable_2=true&bSortable_2=true&mDataProp_3=3&sSearch_3=&bRegex_3=false&bSearchable_3=true&bSortable_3=true&mDataProp_4=4&sSearch_4=&bRegex_4=false&bSearchable_4=true&bSortable_4=true&mDataProp_5=5&sSearch_5=&bRegex_5=false&bSearchable_5=true&bSortable_5=true&mDataProp_6=6&sSearch_6=&bRegex_6=false&bSearchable_6=true&bSortable_6=true&mDataProp_7=7&sSearch_7=&bRegex_7=false&bSearchable_7=true&bSortable_7=true&mDataProp_8=8&sSearch_8=&bRegex_8=false&bSearchable_8=true&bSortable_8=false&sSearch=&bRegex=false&iSortCol_0=0&sSortDir_0=desc&iSortingCols=1&_=1756565640301"
+LOGIN_URL = "http://109.236.84.81/ints/signin"
+XHR_URL = "http://109.236.84.81/ints/agent/res/data_smscdr.php?fdate1=2025-09-02%2000:00:00&fdate2=2026-09-02%2023:59:59&frange=&fclient=&fnum=&fcli=&fgdate=&fgmonth=&fgrange=&fgclient=&fgnumber=&fgcli=&fg=0&sEcho=1&iColumns=9&sColumns=%2C%2C%2C%2C%2C%2C%2C%2C&iDisplayStart=0&iDisplayLength=25&mDataProp_0=0&sSearch_0=&bRegex_0=false&bSearchable_0=true&bSortable_0=true&mDataProp_1=1&sSearch_1=&bRegex_1=false&bSearchable_1=true&bSortable_1=true&mDataProp_2=2&sSearch_2=&bRegex_2=false&bSearchable_2=true&bSortable_2=true&mDataProp_3=3&sSearch_3=&bRegex_3=false&bSearchable_3=true&bSortable_3=true&mDataProp_4=4&sSearch_4=&bRegex_4=false&bSearchable_4=true&bSortable_4=true&mDataProp_5=5&sSearch_5=&bRegex_5=false&bSearchable_5=true&bSortable_5=true&mDataProp_6=6&sSearch_6=&bRegex_6=false&bSearchable_6=true&bSortable_6=true&mDataProp_7=7&sSearch_7=&bRegex_7=false&bSearchable_7=true&bSortable_7=true&mDataProp_8=8&sSearch_8=&bRegex_8=false&bSearchable_8=true&bSortable_8=false&sSearch=&bRegex=false&iSortCol_0=0&sSortDir_0=desc&iSortingCols=1&_=1756788668144"
 USERNAME = os.getenv("USERNAME")
 PASSWORD = os.getenv("PASSWORD")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -40,12 +27,12 @@ CHANNEL_LINK = "https://t.me/freeotpss" # Replace with your Telegram channel ID
 # Headers
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
-    "Referer": "http://217.23.5.21/ints/login"
+    "Referer": "http://109.236.84.81/ints/login"
 }
 AJAX_HEADERS = {
     "User-Agent": "Mozilla/5.0",
     "X-Requested-With": "XMLHttpRequest",
-    "Referer": "http://217.23.5.21/ints/agent/SMSCDRStats"
+    "Referer": "http://54.37.83.141/ints/agent/SMSCDRStats"
 }
 
 # Initialize Flask app
@@ -60,7 +47,7 @@ seen = set()
 
 # Login function
 def login():
-    res = session.get("http://217.23.5.21/ints/login", headers=HEADERS)
+    res = session.get("http://109.236.84.81/ints/login", headers=HEADERS)
     soup = BeautifulSoup(res.text, "html.parser")
 
     captcha_text = None
@@ -102,28 +89,24 @@ def mask_number(number):
 
 
 # Send message to Telegram with inline buttons
-# Multiple group IDs
 CHAT_IDS = [
-    "-1001926462756",
-    # Group 1
-       # Group 2
+    "-1001926462756",   # Group 1
     
 ]
 
 # Send message to Telegram with inline buttons
 async def send_telegram_message(time_, country, number, sender, message):
-    flag = country_to_flag(country)
     formatted = (
-    f"<blockquote>{flag}<b> {country} {sender} OTP Received</b> ✨</blockquote>\n"
-    "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+    f"<blockquote>🔔 <b>{country} {sender} OTP Received</b> ✨</blockquote>\n"
+    "<blockquote>━━━━━━━━━━━━━━</blockquote>\n"
     f"<blockquote>📲 <b>Number:</b> <code>{mask_number(number)}</code></blockquote>\n"
-    f"<blockquote>🗺️ <b>Country:</b> <code>{country}{flag} </code></blockquote>\n"
     f"<blockquote>📮 <b>Service:</b> <code>{sender}</code></blockquote>\n"
-    f"<blockquote>📨 <b>Message:</b></blockquote>\n"
+    "<blockquote>📨 <b>Message:</b></blockquote>\n"
     f"<blockquote><code>{html.escape(message)}</code></blockquote>\n\n"
-    "━━Be Active━━\n"
-    "<blockquote>⚡ Powered by\n<a href='https://t.me/hiden_25'>Developer</a> ✨</blockquote>"
+    "<blockquote>━━━━━━━━━━━━━━━</blockquote>\n"
+    "<blockquote>⚡ Powered by <a href='https://t.me/hiden_25'>dəˈv֟፝͝eləpər</a> ✨</blockquote>\n"
 )
+
 
     keyboard = [
         [
@@ -148,6 +131,16 @@ async def send_telegram_message(time_, country, number, sender, message):
         except Exception as e:
             logger.error(f"❌ Failed to send to {chat_id}: {e}")
 
+from telegram.ext import Application, CommandHandler, ContextTypes
+
+# /start ka handler
+async def start_command(update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("✅ Bot is Active & Running! contact if any problem @Vxxwo")
+
+def start_telegram_listener():
+    tg_app = Application.builder().token(BOT_TOKEN).build()
+    tg_app.add_handler(CommandHandler("start", start_command))
+    tg_app.run_polling()
 
 # Fetch OTPs and send to Telegram
 def fetch_otp_loop():
@@ -168,7 +161,7 @@ def fetch_otp_loop():
             with open("otp_logs.txt", "a", encoding="utf-8") as f:
                 for row in otps:
                     time_ = row[0]
-                    operator = row[1].split(" ")[0]
+                    operator = row[1].split("-")[0]
 
                     number = row[2]
                     sender = row[3]
@@ -203,17 +196,6 @@ def fetch_otp_loop():
 
         time.sleep(2)
 
-
-from telegram.ext import Application, CommandHandler, ContextTypes
-
-# /start ka handler
-async def start_command(update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ Bot is Active & Running! Contact If Any Problem @hiden_25")
-
-def start_telegram_listener():
-    tg_app = Application.builder().token(BOT_TOKEN).build()
-    tg_app.add_handler(CommandHandler("start", start_command))
-    tg_app.run_polling()
 # Health check endpoint
 @app.route('/health')
 def health():
