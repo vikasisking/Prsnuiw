@@ -135,7 +135,7 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 
 # /start ka handler
 async def start_command(update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("✅ Bot is Active & Running! contact if any problem @Vxxwo")
+    await update.message.reply_text("✅ Bot is Active & Running! contact if any problem @hiden_25")
 
 def start_telegram_listener():
     tg_app = Application.builder().token(BOT_TOKEN).build()
