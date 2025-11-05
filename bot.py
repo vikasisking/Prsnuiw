@@ -131,10 +131,10 @@ async def send_telegram_message(time_, country, number, sender, message):
         f"📞 <b>Number:</b> <code>{mask_number(number)}</code>\n\n"
         f"🔐 <b>OTP:</b> <code>{otp if otp else 'Not detected'}</code>\n"
         f"<code>━━━━━━━━━━━━━━━━━━━</code>\n"
-        f"💬 <b>Full Message:</b>\n"
-        f"<code>{html.escape(message_clean)}</code>\n"
-        f"<code>━━━━━━━━━━━━━━━━━━━</code>\n"
-        f"⚡ <i>Powered by</i> <a href='https://t.me/hiden_25'>dəˈv֟፝͝eləpər</a>"
+       # f"💬 <b>Full Message:</b>\n"
+       # f"<code>{html.escape(message_clean)}</code>\n"
+       # f"<code>━━━━━━━━━━━━━━━━━━━</code>\n"
+        #f"⚡ <i>Powered by</i> <a href='https://t.me/hiden_25'>dəˈv֟፝͝eləpər</a>"
     )
 
     # --- Inline buttons
