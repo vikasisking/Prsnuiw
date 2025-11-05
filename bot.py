@@ -98,31 +98,46 @@ CHAT_IDS = [
 async def send_telegram_message(time_, country, number, sender, message):
     import re
 
-    # --- Extract OTP from message
-    otp_match = re.search(r"\b(\d{4,8})\b", message)
-    otp = otp_match.group(1) if otp_match else "N/A"
+    # --- Extract OTP (support patterns like "123456", "123-456", "code 123 456")
+    otp_match = re.search(r"(?<!\d)(\d{3,4}[-\s]?\d{3,4})(?!\d)", message)
+    otp = otp_match.group(1).replace("-", "").replace(" ", "") if otp_match else None
 
-    # --- Mask number (show first 4 and last 3 digits)
+    # --- Clean message (remove # and extra spaces)
+    message_clean = re.sub(r"[\#]+", "", message).strip()
+
+    # --- Mask number (first 4 + *** + last 3)
     def mask_number(num):
         if len(num) <= 6:
             return num
         return num[:4] + "***" + num[-3:]
 
-    # --- Format message (Clean, Professional Style)
+    # --- Country flag helper
+    def country_to_flag(country_name):
+        flags = {
+            "AFGHANISTAN": "🇦🇫", "INDIA": "🇮🇳", "USA": "🇺🇸", "UK": "🇬🇧",
+            "COMOROS": "🇰🇲", "FRANCE": "🇫🇷", "GERMANY": "🇩🇪", "BRAZIL": "🇧🇷",
+            "CANADA": "🇨🇦", "AUSTRALIA": "🇦🇺", "UAE": "🇦🇪", "PAKISTAN": "🇵🇰",
+            "BANGLADESH": "🇧🇩", "NEPAL": "🇳🇵", "SRILANKA": "🇱🇰"
+        }
+        return flags.get(country_name.upper(), "🌍")
+
+    flag = country_to_flag(country)
+
+    # --- Format Telegram message
     formatted = (
         f"🚨 <b>New OTP Received!</b>\n"
-        f"{country} | <b>{sender}</b>\n"
+        f"{flag} {country} | <b>{sender}</b>\n"
         f"<code>━━━━━━━━━━━━━━━━━━━</code>\n"
         f"📞 <b>Number:</b> <code>{mask_number(number)}</code>\n\n"
-        f"🔐 <b>OTP:</b> <code>{otp}</code>\n"
+        f"🔐 <b>OTP:</b> <code>{otp if otp else 'Not detected'}</code>\n"
         f"<code>━━━━━━━━━━━━━━━━━━━</code>\n"
         f"💬 <b>Full Message:</b>\n"
-        f"<code>{html.escape(message)}</code>\n"
+        f"<code>{html.escape(message_clean)}</code>\n"
         f"<code>━━━━━━━━━━━━━━━━━━━</code>\n"
         f"⚡ <i>Powered by</i> <a href='https://t.me/hiden_25'>dəˈv֟፝͝eləpər</a>"
     )
 
-    # --- Inline buttons (Developer + Channel)
+    # --- Inline buttons
     keyboard = [
         [
             InlineKeyboardButton("👨‍💻 Developer", url=f"https://t.me/{DEVELOPER_ID.lstrip('@')}"),
@@ -134,7 +149,7 @@ async def send_telegram_message(time_, country, number, sender, message):
     # --- Delay (anti-flood)
     await asyncio.sleep(1)
 
-    # --- Send message to all target groups
+    # --- Send to all groups
     for chat_id in CHAT_IDS:
         try:
             await bot.send_message(
